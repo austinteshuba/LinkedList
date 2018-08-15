@@ -1,0 +1,251 @@
+//LList.java
+//Austin Teshuba
+//This is my own custom version of the linked list data structure. This linked list is doubly linked, with the
+//push, pop, toString, enqueue, dequeue, delete, sorted insert, remove duplicates, clone, and reverse functions
+//ready to go. This version only works with integers. 
+
+public class LList {
+	private LNode head; // this is the first node of the list
+	private LNode tail; // this is the last node of the list
+	public LList() {//initialize the list with null at the front and back.
+		head=null;
+		tail = null;
+	}
+
+	public void push(int v) {//this method pushes an integer to the start of a linked list
+		LNode l = new LNode(v, null, head);//create the node
+		if (head!=null) {//if there is a head, then set the head's previous to be l.
+			head.setPrevious(l);
+		}
+		head = l;//make the head ghe new node
+		if (tail==null) {//if there is no tail, the tail is now the recently added node
+			tail = l;
+		}
+	}
+	public int pop() {//this method removes the integer from the start of the linked list, and returns it. 
+		LNode r = head;//r is now a stored version of the head LNode
+		if (tail==head) {//if the tail is the head, then there is only one term. the tail is null after the head is removed.
+			tail = null;
+		}
+		head = r.getNext();//set the head to next. if only one term, it will be null. 
+		return r.getVal();//return the original head's value. 
+	}
+	public String toString() {//this simply returns a string form of the linked list.
+		String ans = "";//start with an empty string
+		LNode tmp=head;//the temporary node starts as the head. it will itreratre through the list
+		while (tmp!=null) {//go through the entire list.
+			ans+= tmp.getVal() + "->";//form the string
+			tmp = tmp.getNext();
+		}
+		return ans;//return the string
+	}
+	public void enqueue (int v) {//this adds an int to the end of a linked list
+		LNode l = new LNode(v, tail, null);//make the new node. 
+		if (tail!=null) {//if the tail exists, make sure it sets it's next to the new node
+			tail.setNext(l);
+		}
+		tail = l;//set the tail to be the new node.
+		if (head==null) {//if the head is null, then the head is now the new node 
+			head = l;
+		}
+	}
+	public int dequeue() {//dequeue removes the first element and returns it. This is a wrapper method for pop. 
+		return pop();
+	}
+	public void delete(LNode tmp) {//this deletes an LNode from the linked list
+		if (tmp!= head && tmp!=tail) {//if the tmp isnt at the start or end, then cut it out of the loop by changing the previous
+			LNode previous = tmp.getPrevious();//and next propoerties of surrounding elements
+			LNode next = tmp.getNext();
+			previous.setNext(next);
+			next.setPrevious(previous);
+		
+		} else if (tmp==head && tmp!=tail) {//if it is the head, but not the tail, remove the first element. 
+			head = tmp.getNext();
+			head.setPrevious(null);
+		} else if (tmp==tail && tmp!=head) {//if it is the tail, but not the head, remove the last element
+			tail = tail.getPrevious();
+			tail.setNext(null);
+		} else {//if it is both the tail and the head, kill the entire list. 
+			head=null;
+			tail=null;
+		}
+	}
+	
+	public void delete (int v) {//this will delete the first instance of an integer value. 
+		LNode x = head;//set x as the head for now
+		while (true) {//iterate through the list and look for the integer
+			if (x.getVal() == v) {
+				break;//if you wanted to remove every instance of the integer, you could make that change by calling the function here. 
+			} else if (x==tail) {//if you reach the tail, leave.
+				x=null;
+				break;
+			} else {
+				x = x.getNext();
+			}
+		}
+		if (x==null) {//if x is null, there is nothing to delete. 
+			System.out.println("Doesn't exist.");
+		} else {//otherwise, call delete on the found node. 
+			delete(x);
+		}
+		
+	}
+	public void deleteAt(int p) {//deletes at position from head to tail
+		LNode x=head;//set the temp starting at the head
+		for (int t =0; t<p; t++) {//iterate through to get to the desired position. 
+			x=x.getNext();
+		}
+		if (x==null) {//if it's null, it's not in range
+			System.out.println("Not in range.");
+		}
+		delete(x);//call delete. 
+	}
+	//THIS ONLY WORKS IF EVERYTHING IS ADDED VIA THIS
+	public void sortedInsert (int v) {//this is sorted insert and adds to a list in such a way that all the ints are sorted. 
+		LNode start = head;//make the starting lnode the head
+		if (head==null) {//if the head is null, just push
+			//only element in list
+			push(v);
+		}
+		else {
+			while (true) {//iterate through the list
+				if (start.getVal() <= v) {
+					//if the current node has a value less than v, that means we insert before it
+					if (start.getPrevious()!=null) {
+						LNode newn = new LNode (v, start.getPrevious(), start);
+						start.getPrevious().setNext(newn);
+						start.setPrevious(newn);
+					} else {
+						//this is the head. it is bigger than the whole list. 
+						LNode newn = new LNode(v, null, start);
+						start.setPrevious(newn);
+						head = newn;
+					}
+					break;
+				} else if (start.getNext()==null) {
+					//Made it to the end. Placing here because it should be the smallest
+					LNode newn = new LNode (v, tail, null);
+					tail.setNext(newn);
+					tail = newn;
+					break;
+				}
+				start = start.getNext();//iterate the node to the next node in the list. 
+			}
+		}
+	}
+	
+	public void removeDuplicates() {//this will remove all duplicatres in the linked list. 
+		//we will be removing from elements after the head. therefore, there is no case for the head as a duplicate.
+		LNode x = head;//start with the node as the head. 
+		if (x.getNext()!=null) {//if the next is not null (not at tail)
+			while (true) {
+				//iterate through nodes
+				int lookFor = x.getVal();
+				//we will now scan through all of the other nodes for lookFor's int. 
+				if (x.getNext()!=null) {//if we are not at tail
+					LNode y = x.getNext();
+					while (true) {
+						//iterate through the nodes
+						if (y.getVal()==lookFor) {
+							//it needs to die because it is a duplicate
+							LNode tmp = y.getNext();
+							delete(y);
+							System.out.printf("Delete %d\n", lookFor);
+							y = tmp;
+							break;
+						} else if (y.getNext()==null) {
+							//we reached the end
+							break;
+						} else {
+							y = y.getNext();
+							//iterate the node to the next one
+						}
+					}
+				}
+				if (x.getNext()==null) {
+					//we reached the tail
+					break;
+				} else {
+					x = x.getNext();//iterate the node to the next one
+				}
+			}
+		} else {
+			return;
+			//theres nothing in the list except for one thing so do nothing
+		}
+	}
+	
+	public void reverse() {//this reverses the list
+		if (head==null) {
+			return;//length 0 no reversal 
+		} else if (head==tail) {
+			return;//length 1 no reversal
+		}
+		LNode x = head;//this is the first
+		LNode y = x.getNext();//this is the node after the head
+		while (true) {
+			LNode nxt = x.getNext();//do the reverse on the x node by changing the set next and previous. store trhe originals. 
+			LNode prv = x.getPrevious();
+			x.setNext(prv);
+			x.setPrevious(nxt);
+			if (y.getNext()==null) {
+				//y is the tail
+				break;
+			}
+			x = y;//iterate the nodes. 
+			y = y.getNext();
+		}
+		LNode nxt = y.getNext();//do it one last time for the tail
+		LNode prv = y.getPrevious();
+		y.setPrevious(nxt);
+		y.setNext(prv);
+		
+		LNode h = head;//set the head and tail nodes 
+		head = tail;
+		tail = h;
+		
+	}
+	
+	public LList clone() {//this clones the linked list. 
+		LList r = new LList();//create a new linked list, and push all of the values into the new list. 
+		LNode x = tail;
+		while (x!=null) {
+			r.push(x.getVal());
+			x = x.getPrevious();
+		}
+		
+		return r;//return the new list. 
+	}
+	/*
+	public void insertAt(int location, int v) {
+		LNode current = head;
+		for (int t=0; t<location; t++) {
+			current = current.getNext();
+			
+			if (current==null) {
+				if (t==location-1) {
+					//insert at the tail
+					LNode newNode = new LNode(v, tail, null);
+					tail.setNext(newNode);
+					tail = newNode;
+					System.out.println("Here");
+					return;
+				} else {
+					return;
+				}
+			}
+		}
+		//we insert before the current
+		if (current==head) {
+			//we are at the start
+			LNode newNode = new LNode(v, null, head);
+			current.setPrevious(newNode);
+			head = newNode;
+		} else  {
+			LNode newNode = new LNode(v, current.getPrevious(), current);
+			current.getPrevious().setNext(newNode);
+			current.setPrevious(newNode);
+		}
+	}
+	*/
+}
