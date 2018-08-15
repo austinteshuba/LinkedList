@@ -1,0 +1,36 @@
+//LNode.java
+//Austin Teshuba
+//This is the node for the linked list replica.
+
+
+public class LNode {
+	private int val;
+	private LNode next;
+	private LNode previous;
+	
+	public LNode(int v, LNode p, LNode n) {
+		val = v;
+		next = n;
+		previous = p;
+	}
+	
+	public int getVal() {
+		return val;
+	}
+	public LNode getNext() {
+		return next;
+	}
+	public LNode getPrevious() {
+		return previous;
+	}
+	
+	public void setVal(int v) {
+		val = v;
+	}
+	public void setNext(LNode n) {
+		next=n;
+	}
+	public void setPrevious (LNode n) {
+		previous = n;
+	}
+}
